@@ -1,0 +1,264 @@
+
+<div class="app-shell">
+  <aside class="sidebar">
+    <a class="brand" href="#">
+      <span class="brand-icon">G</span>
+      <span>Gharsa<span class="brand-light">Store</span></span>
+    </a>
+
+    <p class="nav-label">MENU PRINCIPAL</p>
+
+    <a class="nav-item active" href="#dashboard">
+      <span class="nav-icon">▦</span>
+      Dashboard
+    </a>
+
+    <a class="nav-item" href="#products">
+      <span class="nav-icon">◇</span>
+      Mes produits
+    </a>
+
+    <div class="sidebar-bottom">
+      <div class="profile-avatar">A</div>
+      <div class="profile-info">
+        <strong>Administrateur</strong>
+        <span>Gestion du stock</span>
+      </div>
+      <span class="online-dot"></span>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">ESPACE DE GESTION</p>
+        <h1>Bonjour, bienvenue ! <span>♡</span></h1>
+        <p class="subtitle">Gérez vos produits simplement et efficacement.</p>
+      </div>
+
+      <div class="topbar-right">
+        <span class="status-dot"></span>
+        <span class="system-status">Système connecté</span>
+        <div class="top-avatar">A</div>
+      </div>
+    </header>
+
+    <section id="dashboard" class="stats-grid">
+      <article class="stat-card">
+        <div class="stat-top">
+          <span class="stat-icon pink-icon">◇</span>
+          <span class="stat-caption">INVENTAIRE</span>
+        </div>
+        <p class="stat-value">{{ products.length }}</p>
+        <p class="stat-label">Produits enregistrés</p>
+        <div class="stat-bottom"><span>✦</span> Votre catalogue actuel</div>
+      </article>
+
+      <article class="stat-card">
+        <div class="stat-top">
+          <span class="stat-icon purple-icon">₮</span>
+          <span class="stat-caption">VALEUR TOTALE</span>
+        </div>
+        <p class="stat-value">{{ totalValue | number:'1.2-2' }} <small>TND</small></p>
+        <p class="stat-label">Valeur des produits</p>
+        <div class="stat-bottom"><span>✦</span> Calculée automatiquement</div>
+      </article>
+
+      <article class="stat-card welcome-card">
+        <div class="welcome-decoration">✿</div>
+        <p class="welcome-small">UNE GESTION TOUT EN DOUCEUR</p>
+        <h2>Organisez vos idées,<br />développez votre activité.</h2>
+        <span class="welcome-flower">♡</span>
+      </article>
+    </section>
+
+    <div class="alerts">
+      <div *ngIf="successMessage" class="alert success-alert">
+        <span>✓</span> {{ successMessage }}
+        <button type="button" (click)="successMessage = ''">×</button>
+      </div>
+
+      <div *ngIf="errorMessage" class="alert error-alert">
+        <span>!</span> {{ errorMessage }}
+        <button type="button" (click)="errorMessage = ''">×</button>
+      </div>
+    </div>
+
+    <section class="content-grid">
+      <article class="panel form-panel">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">VOTRE CATALOGUE</p>
+            <h2>{{ editingId !== null ? 'Modifier le produit' : 'Ajouter un produit' }}</h2>
+          </div>
+          <span class="heading-icon">{{ editingId !== null ? '✎' : '＋' }}</span>
+        </div>
+
+        <p class="panel-description">
+          {{ editingId !== null ? 'Mettez à jour les informations ci-dessous.' : 'Complétez les informations pour enrichir votre catalogue.' }}
+        </p>
+
+        <form (ngSubmit)="saveProduct()" #productForm="ngForm">
+          <div class="field-group">
+            <label for="productName">Nom du produit <span>*</span></label>
+            <input
+              id="productName"
+              type="text"
+              name="name"
+              [(ngModel)]="form.name"
+              placeholder="Ex. : Sac élégant"
+              required
+              maxlength="100"
+            />
+          </div>
+
+          <div class="field-group">
+            <label for="productPrice">Prix (TND) <span>*</span></label>
+            <div class="price-input">
+              <input
+                id="productPrice"
+                type="number"
+                name="price"
+                [(ngModel)]="form.price"
+                placeholder="0.00"
+                min="0"
+                step="0.01"
+                required
+              />
+              <span>TND</span>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label for="productDescription">Description</label>
+            <textarea
+              id="productDescription"
+              name="description"
+              [(ngModel)]="form.description"
+              placeholder="Décrivez brièvement votre produit..."
+              rows="4"
+              maxlength="500"
+            ></textarea>
+          </div>
+
+          <button
+            class="primary-button"
+            type="submit"
+[disabled]="saving"          >
+            <span>{{ saving ? 'Enregistrement...' : (editingId !== null ? '✓ Enregistrer les modifications' : '＋ Ajouter le produit') }}</span>
+          </button>
+
+          <button
+            *ngIf="editingId !== null"
+            class="secondary-button"
+            type="button"
+            (click)="resetForm()"
+          >
+            Annuler la modification
+          </button>
+        </form>
+
+        <div class="form-note">
+          <span>♡</span>
+          Vos informations sont enregistrées dans votre base de données.
+        </div>
+      </article>
+
+      <article id="products" class="panel products-panel">
+        <div class="panel-heading products-heading">
+          <div>
+            <p class="eyebrow">VUE D'ENSEMBLE</p>
+            <h2>Liste des produits</h2>
+          </div>
+          <span class="count-badge">{{ filteredProducts.length }} produit(s)</span>
+        </div>
+
+        <div class="search-box">
+          <span class="search-icon">⌕</span>
+          <input
+            type="search"
+            name="search"
+            [(ngModel)]="searchTerm"
+            placeholder="Rechercher un produit..."
+            aria-label="Rechercher un produit"
+          />
+          <span class="search-shortcut">⌘ K</span>
+        </div>
+
+        <div *ngIf="loading" class="empty-state">
+          <div class="empty-icon">♡</div>
+          <h3>Chargement en cours...</h3>
+          <p>Nous récupérons vos produits.</p>
+        </div>
+
+        <div *ngIf="!loading && filteredProducts.length === 0" class="empty-state">
+          <div class="empty-icon">✿</div>
+          <h3>{{ searchTerm ? 'Aucun résultat' : 'Votre catalogue est vide' }}</h3>
+          <p>{{ searchTerm ? 'Essayez un autre mot-clé.' : 'Ajoutez votre premier produit avec le formulaire.' }}</p>
+        </div>
+
+        <div *ngIf="!loading && filteredProducts.length > 0" class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>PRODUIT</th>
+                <th>PRIX</th>
+                <th>DESCRIPTION</th>
+                <th class="actions-header">ACTIONS</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let product of filteredProducts; let i = index">
+                <td>
+                  <div class="product-cell">
+                    <div class="product-avatar" [class.alt-avatar]="i % 2 !== 0">
+                      {{ product.name.charAt(0).toUpperCase() }}
+                    </div>
+                    <div class="product-name">
+                      <strong>{{ product.name }}</strong>
+                      <span>Réf. #{{ product.id }}</span>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <span class="price-pill">{{ product.price | number:'1.2-2' }} TND</span>
+                </td>
+                <td>
+                  <span class="description-text">{{ product.description || 'Aucune description' }}</span>
+                </td>
+                <td>
+                  <div class="action-buttons">
+                    <button
+                      class="icon-button edit-button"
+                      type="button"
+                      (click)="editProduct(product)"
+                      title="Modifier"
+                      aria-label="Modifier le produit"
+                    >✎</button>
+                    <button
+                      class="icon-button delete-button"
+                      type="button"
+                      (click)="deleteProduct(product)"
+                      title="Supprimer"
+                      aria-label="Supprimer le produit"
+                    >⌫</button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="panel-footer">
+          <span>Une expérience de gestion simple et élégante.</span>
+          <span class="footer-heart">Fait avec ♡</span>
+        </div>
+      </article>
+    </section>
+
+    <footer class="page-footer">
+      <span>© 2026 GharsaStore</span>
+      <span>Product Management Dashboard <span class="footer-heart">♡</span></span>
+    </footer>
+  </main>
+</div>

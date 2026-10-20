@@ -1,0 +1,4 @@
+/home/lenovo/TP1-CRUD/backend/src/main/java/com/example/backend/BackendApplication.java
+/home/lenovo/TP1-CRUD/backend/src/main/java/com/example/backend/controller/ProductController.java
+/home/lenovo/TP1-CRUD/backend/src/main/java/com/example/backend/model/Product.java
+/home/lenovo/TP1-CRUD/backend/src/main/java/com/example/backend/repository/ProductRepository.java
